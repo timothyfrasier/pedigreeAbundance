@@ -2,7 +2,7 @@
 # CODE FOR BAYESIAN GAMETIC MARK-   #
 # RECAPTURE ANALYSIS.               #
 #                                   #
-# Last updated: 2023-06-14          #
+# Last updated: 15-Jan-2025         #
 # Tim Frasier                       #
 #####################################
 
@@ -169,12 +169,14 @@ write.csv(results.pace, "../results/results_pace.csv", row.names = FALSE, quote 
 #-- Plot the data --#
 ggplot(results.pace) +
   theme_bw() +
-  geom_ribbon(aes(x = data.year, ymin = males.low, ymax = males.high), fill = "grey", color = "gray47") +
+  geom_ribbon(aes(x = data.year, ymin = males.low, ymax = males.high), fill = "grey", color = "gray47", alpha = 0.6) +
   geom_point(aes(x = data.year, y = males.mean)) +
   geom_point(aes(x = data.year, y = pace.mean), color = "red") +
   geom_segment(aes(x = data.year, y = pace.low, yend = pace.high), color = "red") +
   ylim(0, 350) +
   labs(
     x = "Year",
-    y = "# of Males"
+    y = "Estimated # of males"
   )
+
+ggsave("../results/abundance.pdf", width = 6, height = 5, units = "in")
