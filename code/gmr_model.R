@@ -20,8 +20,7 @@ library(ggplot2)
 #-------------------------------#
 data = read.table("../data/paternity_summary.csv", sep = ",", header = TRUE)
 
-#--- Remove Years Without Sampled Calves ---#
-data = data[complete.cases(data), ]
+#--- Parse out needed data for equation ---#
 n1 = data$nCandidates
 n2 = data$nGenotypedCalves
 m = data$nPaternities
@@ -153,12 +152,12 @@ ggplot(results) +
 #-------------------------------------------------#
 # Add Results from Pace Model (years 1990 - 2021) #
 #-------------------------------------------------#
-pace.mean = c(146, 149, 157, 157, 162, 165, 169, 177, 179, 180, 181, 192, 199, 211, 218, 229, 240, 250, 261, 273, 280, 281, 278, 279, 280, 276, 266, 251, 227, 217, 201, 197)
-pace.low = c(142, 144, 153, 153, 157, 162, 165, 172, 175, 176, 177, 188, 194, 206, 213, 225, 236, 246, 257, 269, 275, 276, 273, 272, 274, 268, 261, 245, 223, 213, 195, 190)
-pace.high = c(150, 153, 161, 161, 165, 169, 173, 180, 183, 184, 184, 196, 202, 214, 221, 233, 244, 254, 265, 277, 284, 285, 283, 284, 286, 283, 273, 256, 232, 222, 206, 203)
+pace.mean = c(146, 149, 157, 157, 162, 165, 169, 177, 179, 180, 181, 192, 199, 211, 218, 229, 240, 250, 261, 273, 280, 281, 278, 279, 280, 276, 266, 251, 227, 217, 201, 197, NA, NA)
+pace.low = c(142, 144, 153, 153, 157, 162, 165, 172, 175, 176, 177, 188, 194, 206, 213, 225, 236, 246, 257, 269, 275, 276, 273, 272, 274, 268, 261, 245, 223, 213, 195, 190, NA, NA)
+pace.high = c(150, 153, 161, 161, 165, 169, 173, 180, 183, 184, 184, 196, 202, 214, 221, 233, 244, 254, 265, 277, 284, 285, 283, 284, 286, 283, 273, 256, 232, 222, 206, 203, NA, NA)
 
 #-- Get results for corresponding years --#
-results.pace = results[results$data.year > 1989 & results$data.year < 2022, ]
+results.pace = results[results$data.year > 1989, ]
 results.pace$pace.mean = pace.mean
 results.pace$pace.low = pace.low
 results.pace$pace.high = pace.high
@@ -180,3 +179,17 @@ ggplot(results.pace) +
   )
 
 ggsave("../results/abundance.pdf", width = 6, height = 5, units = "in")
+
+tiff("../results/abundance.tiff", width = 5, height = 4, units = "in", res = 600)
+ggplot(results.pace) +
+  theme_bw() +
+  geom_ribbon(aes(x = data.year, ymin = males.low, ymax = males.high), fill = "grey", color = "gray47", alpha = 0.6) +
+  geom_point(aes(x = data.year, y = males.mean)) +
+  geom_point(aes(x = data.year, y = pace.mean), color = "red") +
+  geom_segment(aes(x = data.year, y = pace.low, yend = pace.high), color = "red") +
+  ylim(0, 350) +
+  labs(
+    x = "Year",
+    y = "Estimated # of males"
+  )
+dev.off()
